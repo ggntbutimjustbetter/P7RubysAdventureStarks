@@ -7,6 +7,7 @@ public class EnemyController : MonoBehaviour
     public float speed;
     public bool vertical;
     public float changeTime = 3.0f;
+    Animator animator;
 
     Rigidbody2D rigidbody2D;
     float timer;
@@ -18,10 +19,13 @@ public class EnemyController : MonoBehaviour
     {
        rigidbody2D = GetComponent<Rigidbody2D>();
         timer = changeTime;
+        animator = GetComponent<Animator>();
     }
 
     void Update ()
     {
+        animator.SetFloat("Move X", 0);
+        animator.SetFloat("Move Y", direction);
         timer -= Time.deltaTime;
 
         if (timer < 0)
