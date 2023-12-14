@@ -1,4 +1,5 @@
 using Unity.PlasticSCM.Editor.WebApi;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -26,12 +27,18 @@ public class RubyController : MonoBehaviour
     Animator animator;
     Vector2 lookDirection = new Vector2(1, 0);
 
+    AudioSource audioSource;
+    public AudioClip throwSound;
+    public AudioClip hitSound;
+
 
     void Start()
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
+        
+        audioSource = GetComponent<AudioSource>();
     }
 
 
@@ -64,6 +71,20 @@ public class RubyController : MonoBehaviour
         {
             Launch(); 
         }
+
+        if(Input.GetKeyDown(KeyCode.X))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(rigidbody2d.position + Vector2.up * 0.2f, lookDirection, 1.5f, LayerMask.GetMask("NPC"));
+            if(hit.collider != null)
+            {
+                NonPlayerCharacter character = hit.collider.GetComponent<NonPlayerCharacter>();
+                if(character != null)
+                {
+                    character.DisplayDialog();
+                }
+            }
+            
+        }
     }
 
     void FixedUpdate()
@@ -86,9 +107,10 @@ public class RubyController : MonoBehaviour
             }
             isInvincible = true;
             invincibleTimer = timeInvincible;
+            PLaySound(hitSound);
         }
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
-        Debug.Log(currentHealth + "/" + maxHealth);
+        UIHealthBar.instance.SetValue(currentHealth/(float)maxHealth);
     }
 
 
@@ -101,5 +123,11 @@ public class RubyController : MonoBehaviour
         projectile.Launch(lookDirection, 300);
 
         animator.SetTrigger("Launch");
+        PLaySound(throwSound);
+    }
+
+    public void PLaySound(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
     }
 }
